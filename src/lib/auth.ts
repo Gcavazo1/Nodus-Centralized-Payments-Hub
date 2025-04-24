@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions, User as NextAuthUser } from "next-auth";
+import { NextAuthOptions, User as NextAuthUser } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getAdminFirestoreInstance } from "./firebase-admin";
 

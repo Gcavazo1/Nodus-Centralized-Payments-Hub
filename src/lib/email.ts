@@ -232,7 +232,7 @@ export async function sendPaymentConfirmationEmail(
     
     // console.log(`Sending email from: ${fromAddress} to: ${details.to}`); // Removed
 
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: fromAddress,
       to: details.to,
       subject: details.subject || defaultSubject,
@@ -357,7 +357,7 @@ export async function sendQuoteAcknowledgementEmail(
 
     // console.log(`[Email Lib] Sending quote acknowledgement from: ${fromAddress} to: ${details.to}`); // Removed
 
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: fromAddress,
       to: details.to,
       subject: subject, // Use the dynamic subject

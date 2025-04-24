@@ -4,7 +4,6 @@ import { getAdminFirestoreInstance } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore'; 
 // Import the email function
 import { sendQuoteAcknowledgementEmail } from '@/lib/email';
-import { QuoteRequest } from '@/lib/definitions';
 // Import site configuration
 import { siteConfig } from '@/config/site';
 

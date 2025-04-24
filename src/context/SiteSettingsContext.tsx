@@ -1,8 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect, useCallback } from 'react';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, DocumentData, writeBatch } from 'firebase/firestore';
+import { DEFAULT_THEME_SETTINGS, DEFAULT_PAYMENT_SETTINGS } from '@/config/theme-defaults';
+import type { ThemeColors } from '@/config/theme-defaults';
 
 // Set to true to enable verbose debug logging
 const DEBUG_LOGGING = true;
@@ -14,15 +16,7 @@ const debugLog = (...args: unknown[]) => {
   }
 };
 
-interface ThemeColors {
-  background?: string;
-  card?: string;
-  primary?: string;
-  primaryForeground?: string;
-  secondaryForeground?: string;
-  mutedForeground?: string;
-}
-
+// Re-export these interfaces using the types from our constants file
 interface ThemeSettings {
   selectedTheme: string;
   lightOverlayOpacity: number;
@@ -53,35 +47,9 @@ interface SiteSettingsContextType {
   fetchSiteSettings: () => Promise<void>;
 }
 
-const defaultThemeSettings: ThemeSettings = {
-  selectedTheme: 'centralized',
-  lightOverlayOpacity: 0.25,
-  darkOverlayOpacity: 0.72,
-  lightOverlayColor: "oklch(0.0 0.0 0.0)",
-  darkOverlayColor: "oklch(0.0 0.0 0.0)",
-  colors: {
-    light: {
-      background: "oklch(1 0 0)",
-      card: "oklch(1 0 0)",
-      primary: "oklch(0.208 0.042 265.755)",
-      primaryForeground: "oklch(0.984 0.003 247.858)",
-      secondaryForeground: "oklch(0.208 0.042 265.755)",
-      mutedForeground: "oklch(0.80 0.15 85.0)"
-    },
-    dark: {
-      background: "oklch(0.0 0.0 0.0)",
-      card: "oklch(20.5% 0 0)",
-      primary: "oklch(0.929 0.013 255.508)",
-      primaryForeground: "oklch(0.208 0.042 265.755)",
-      secondaryForeground: "oklch(0.984 0.003 247.858)",
-      mutedForeground: "oklch(0.80 0.15 85.0)"
-    }
-  }
-};
-
-const defaultPaymentSettings: PaymentSettings = {
-  enableCoinbase: false, // Default to disabled
-};
+// Use the imported defaults
+const defaultThemeSettings = DEFAULT_THEME_SETTINGS;
+const defaultPaymentSettings = DEFAULT_PAYMENT_SETTINGS;
 
 const defaultSiteSettings: SiteSettings = {
   theme: defaultThemeSettings,
@@ -109,7 +77,8 @@ export function SiteSettingsProvider({ children }: SiteSettingsProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSiteSettings = async () => {
+  // Use useCallback to memoize the fetchSiteSettings function
+  const fetchSiteSettings = useCallback(async () => {
     debugLog("Starting fetchSiteSettings...");
     setIsLoading(true);
     setError(null);
@@ -172,12 +141,12 @@ export function SiteSettingsProvider({ children }: SiteSettingsProviderProps) {
       setIsLoading(false);
       debugLog("fetchSiteSettings finished.");
     }
-  };
+  }, [siteSettings]); // Only include siteSettings as it's used for comparison
 
   // Initial fetch of site settings
   useEffect(() => {
     fetchSiteSettings();
-  }, []);
+  }, [fetchSiteSettings]); // Add fetchSiteSettings as a dependency
 
   // Function to update site settings
   const updateSiteSettings = async (newSettings: Partial<SiteSettings>) => {

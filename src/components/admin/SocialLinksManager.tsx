@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -82,7 +82,7 @@ export function SocialLinksManager() {
        }
        const urlObj = new URL(normalizedUrl);
        return (urlObj.host + urlObj.pathname).replace(/\/$/, '').toLowerCase();
-     } catch (_e) {
+     } catch {
        return url.toLowerCase();
      }
    };

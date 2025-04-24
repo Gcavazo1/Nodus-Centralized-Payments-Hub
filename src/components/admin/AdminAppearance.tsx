@@ -13,6 +13,7 @@ import { Slider } from '@/components/ui/slider';
 import { SocialLinksManager } from '@/components/admin/SocialLinksManager';
 import { ThemeColorsSettings } from '@/components/admin/ThemeColorsSettings';
 import { ColorPickerInput } from '@/components/ui/color-picker';
+import { DEFAULT_THEME_SETTINGS } from '@/config/theme-defaults';
 
 // Define theme options
 const themeOptions = [
@@ -141,41 +142,14 @@ export default function AdminAppearance() {
       
       try {
         // Reset local state
-        setSelectedTheme('centralized');
-        setLightOpacity(0.25);
-        setDarkOpacity(0.72);
-        setLightOverlayColor("oklch(0.0 0.0 0.0)");
-        setDarkOverlayColor("oklch(0.0 0.0 0.0)");
+        setSelectedTheme(DEFAULT_THEME_SETTINGS.selectedTheme);
+        setLightOpacity(DEFAULT_THEME_SETTINGS.lightOverlayOpacity);
+        setDarkOpacity(DEFAULT_THEME_SETTINGS.darkOverlayOpacity);
+        setLightOverlayColor(DEFAULT_THEME_SETTINGS.lightOverlayColor || "oklch(0.0 0.0 0.0)");
+        setDarkOverlayColor(DEFAULT_THEME_SETTINGS.darkOverlayColor || "oklch(0.0 0.0 0.0)");
         
-        // Create default theme settings to save
-        const defaultSettings = {
-          selectedTheme: 'centralized',
-          lightOverlayOpacity: 0.25,
-          darkOverlayOpacity: 0.72,
-          lightOverlayColor: "oklch(0.0 0.0 0.0)",
-          darkOverlayColor: "oklch(0.0 0.0 0.0)",
-          colors: {
-            light: {
-              background: "oklch(1 0 0)",
-              card: "oklch(1 0 0)",
-              primary: "oklch(0.208 0.042 265.755)",
-              primaryForeground: "oklch(0.984 0.003 247.858)",
-              secondaryForeground: "oklch(0.208 0.042 265.755)",
-              mutedForeground: "oklch(0.80 0.15 85.0)"
-            },
-            dark: {
-              background: "oklch(0.0 0.0 0.0)",
-              card: "oklch(20.5% 0 0)",
-              primary: "oklch(0.929 0.013 255.508)",
-              primaryForeground: "oklch(0.208 0.042 265.755)",
-              secondaryForeground: "oklch(0.984 0.003 247.858)",
-              mutedForeground: "oklch(0.80 0.15 85.0)"
-            }
-          }
-        };
-        
-        // Save to database
-        await updateSiteSettings({ theme: defaultSettings });
+        // Use our centralized default settings
+        await updateSiteSettings({ theme: DEFAULT_THEME_SETTINGS });
         
         toast.success('All theme settings have been reset to defaults');
         setHasChanges(false);

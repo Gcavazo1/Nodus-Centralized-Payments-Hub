@@ -1,3 +1,5 @@
+"use client";
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,12 +23,12 @@ export default function CancelPage() {
             If you were having trouble, please try again or contact support.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button asChild variant="outline">
-              <Link href="/">Return to Homepage</Link>
-            </Button>
-             <Button asChild>
-              <Link href="/#products">View Products</Link>
-            </Button>
+            <Link href="/" passHref>
+              <Button variant="outline">Return to Homepage</Button>
+            </Link>
+            <Link href="/#products" passHref>
+              <Button>View Products</Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

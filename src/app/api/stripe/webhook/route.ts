@@ -11,6 +11,11 @@ import {
 } from '@/lib/server-firestore';
 import { WebhookPayload } from '@/lib/server-firestore';
 
+// Define error type for better type safety
+interface ErrorWithMessage {
+  message: string;
+}
+
 // Stripe webhook handler
 export async function POST(request: NextRequest) {
   try {
@@ -38,9 +43,10 @@ export async function POST(request: NextRequest) {
         signature,
         process.env.STRIPE_WEBHOOK_SECRET || ''
       );
-    } catch (err: any) {
-      console.error('Webhook signature verification failed:', err.message);
-      return NextResponse.json({ error: err.message }, { status: 400 });
+    } catch (err: unknown) {
+      const error = err as ErrorWithMessage;
+      console.error('Webhook signature verification failed:', error.message);
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     // Get Firestore instance
@@ -80,10 +86,11 @@ export async function POST(request: NextRequest) {
           result.success ? 'processed' : 'failed', 
           result.error
         );
-      } catch (error: any) {
-        console.error('Error processing Stripe session:', error);
+      } catch (error: unknown) {
+        const err = error as ErrorWithMessage;
+        console.error('Error processing Stripe session:', err);
         if (webhookEventRef) {
-          await updateWebhookEventStatus(webhookEventRef, 'failed', error.message);
+          await updateWebhookEventStatus(webhookEventRef, 'failed', err.message);
         }
         return NextResponse.json(
           { error: 'Error processing Stripe session' },
@@ -97,8 +104,9 @@ export async function POST(request: NextRequest) {
 
     // Return a 200 response to acknowledge receipt of the event
     return NextResponse.json({ received: true });
-  } catch (error: any) {
-    console.error('Webhook error:', error.message);
+  } catch (error: unknown) {
+    const err = error as ErrorWithMessage;
+    console.error('Webhook error:', err.message);
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }

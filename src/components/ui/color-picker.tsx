@@ -83,7 +83,7 @@ function parseOklch(oklchStr: string) {
       c: parseFloat(values[1]),
       h: parseFloat(values[2]),
     };
-  } catch (e) {
+  } catch {
     return { l: 0.5, c: 0.1, h: 0 };
   }
 }
@@ -105,8 +105,6 @@ export function ColorPickerInput({
   label 
 }: ColorPickerInputProps) {
   const [inputValue, setInputValue] = useState(value);
-  const [advancedMode, setAdvancedMode] = useState(false);
-  const [colorTab, setColorTab] = useState("palette");
   
   // Parse the current color for advanced editing
   const { l, c, h } = parseOklch(value);
@@ -156,7 +154,7 @@ export function ColorPickerInput({
             />
           </PopoverTrigger>
           <PopoverContent className="w-[320px] p-3">
-            <Tabs defaultValue="palette" onValueChange={setColorTab}>
+            <Tabs defaultValue="palette">
               <TabsList className="grid w-full grid-cols-3 mb-2">
                 <TabsTrigger value="palette">Palette</TabsTrigger>
                 <TabsTrigger value="advanced">Advanced</TabsTrigger>

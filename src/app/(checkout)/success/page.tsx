@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2 } from 'lucide-react';
 
-export default function SuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
 
@@ -43,5 +43,24 @@ export default function SuccessPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto max-w-2xl py-12 px-4">
+        <Card className="text-center">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Loading...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Processing your payment information...</p>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 } 

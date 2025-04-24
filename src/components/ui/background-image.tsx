@@ -122,9 +122,9 @@ export function BackgroundImage({
   
   const themeBgClass = isLightMode ? "theme-light-bg" : "theme-dark-bg";
 
-  // If not mounted, render an empty div to avoid hydration mismatch
-  if (!mounted) {
-    return <div className={cn("fixed inset-0 -z-10", className)} />;
+  // If not mounted or still loading settings, render a placeholder to avoid flashes
+  if (!mounted || isSiteSettingsLoading) {
+    return <div className={cn("fixed inset-0 -z-10 bg-background", className)} />;
   }
 
   return (
@@ -148,9 +148,11 @@ export function BackgroundImage({
       {preloadAlternateTheme && (
         <link
           rel="preload"
-          as="image"
+          as="image" 
           href={alternateImageUrl}
           key={alternateImageUrl}
+          fetchPriority="low"
+          media={isLightMode ? "(prefers-color-scheme: dark)" : "(prefers-color-scheme: light)"}
         />
       )}
     </div>

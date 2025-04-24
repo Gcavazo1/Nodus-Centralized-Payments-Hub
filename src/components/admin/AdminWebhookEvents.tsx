@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Card,
   CardContent,
@@ -94,7 +94,7 @@ export default function AdminWebhookEvents() {
   const [retrying, setRetrying] = useState<Record<string, boolean>>({});
 
   // Fetch webhook events
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -134,12 +134,12 @@ export default function AdminWebhookEvents() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
 
   // Initial fetch
   useEffect(() => {
     fetchEvents();
-  }, [filter]);
+  }, [fetchEvents]);
 
   // Handle retry webhook
   const handleRetry = async (eventId: string) => {
