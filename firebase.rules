@@ -1,0 +1,115 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default: Deny all access unless explicitly allowed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper function to check if user is an admin
+    function isAdmin() {
+      // Check if the user is authenticated and their UID exists in the adminUsers collection
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/adminUsers/$(request.auth.uid));
+    }
+
+    // --- Webhook-Managed Collections (Client WRITE disallowed) ---
+
+    // Webhook Events: Read-only for admins, Write only via Admin SDK (implicitly allowed)
+    match /webhookEvents/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false; // Writes only happen via Admin SDK
+    }
+
+    // Payments: Read-only for admins, Write only via Admin SDK
+    match /payments/{paymentId} {
+      allow read: if isAdmin();
+      // Future Enhancement: Allow user to read their own payments
+      // allow read: if isAdmin() || (request.auth != null && resource.data.customerId == request.auth.uid);
+      allow write: if false; // Writes only happen via Admin SDK
+    }
+
+    // Orders: Read-only for admins, Write only via Admin SDK
+    match /orders/{orderId} {
+      allow read: if isAdmin();
+      // Future Enhancement: Allow user to read their own orders
+      // allow read: if isAdmin() || (request.auth != null && resource.data.customerId == request.auth.uid);
+      allow write: if false; // Writes only happen via Admin SDK
+      
+      // Order Items Subcollection: Inherits admin read, prevents client write
+      match /items/{itemId} {
+        allow read: if isAdmin();
+        allow write: if false;
+      }
+    }
+
+    // Customers:
+    match /customers/{customerId} {
+      // Admins can read any customer.
+      // Authenticated users can read their own customer document.
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == customerId);
+      
+      // Admins can write/update any customer.
+      // Authenticated users can update their own NON-GUEST record.
+      allow write: if isAdmin() || 
+                     (request.auth != null && request.auth.uid == customerId && 
+                      !request.resource.data.isGuest && // Cannot set isGuest=true via client
+                      resource.data.isGuest == false);   // Cannot update if it IS currently a guest
+    }
+
+    // --- Client-Interactable Collections ---
+
+    // Quote Requests: Admins can read/write. Authenticated users can create.
+    match /quoteRequests/{requestId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if request.auth != null; // Allow any logged-in user to create
+    }
+
+    // Quotes (Assuming admins create/manage these primarily)
+    match /quotes/{quoteId} {
+      allow read: if isAdmin();
+      // Future Enhancement: Allow user associated with the quote to read
+      // allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    // --- Configuration/Admin Data ---
+
+    // Admin Users: Read-only for admins (to check roles), Write-protected from clients
+    match /adminUsers/{userId} {
+      allow read: if isAdmin();
+      allow write: if false; // Manage via console or secure admin function
+    }
+
+    // Site Settings (e.g., footer links): Public read, Admin write
+    match /siteSettings/{settingId} {
+      allow read: if true; // Needed for public display (e.g., footer)
+      allow write: if isAdmin();
+      
+      // Specific rule for links subcollection if needed (e.g., /siteSettings/socialLinks/links/{linkId})
+      match /links/{linkId} {
+         allow read: if true;
+         allow write: if isAdmin();
+      }
+    }
+
+    // NEW: Top-level socialLinks collection for SocialLinksManager
+    match /socialLinks/{linkId} {
+      // Allow anyone to read social links (for footer display)
+      allow read, list: if true;
+      // Only admins can create, update, delete social links
+      allow write: if isAdmin(); 
+    }
+
+    // _adminTests Collection (Temporary): Allow Admin SDK writes, Admin reads
+     match /_adminTests/{testId} {
+       allow read: if isAdmin();
+       allow write: if false; // Only Admin SDK writes were done
+     }
+
+    // Note: Offerings are assumed to be in code (config/offerings.ts). 
+    // If moved to Firestore, add rules here.
+  }
+} 

@@ -1,0 +1,38 @@
+{
+    "projectType": "commercial-template",
+    "quality": {
+      "goal": "production-ready",
+      "enforceStrictness": true,
+      "rules": {
+        "noWorkarounds": true,
+        "noHackyFixes": true,
+        "noPseudoImplementations": true,
+        "requireFullRefactors": true,
+        "noPartialRefactors": true,
+        "requireFileContextAwareness": true,
+        "requireReadingAssociatedFiles": true,
+        "noPlaceholderLogic": true,
+        "noMagicFunctions": true
+      }
+    },
+    "developerBehavior": {
+      "mustReadAssociatedFilesFirst": true,
+      "mustLeaveNoDeadCode": true,
+      "mustDocumentKeyDecisions": true,
+      "mustUseClearNaming": true,
+      "mustAvoidOverEngineering": true
+    },
+    "refactorPolicy": {
+      "completeRefactorsOnly": true,
+      "allReferencesMustBeUpdated": true,
+      "testCoverageRequired": true,
+      "cleanCodeOnly": true
+    },
+    "review": {
+      "enableSelfReview": true,
+      "autoDetectUnclearLogic": true,
+      "flagQuickFixes": true
+    },
+    "notes": "This project is a commercial, production-grade template. No shortcuts, workarounds, or incomplete logic will be accepted. All implementations must be clean, well-structured, and fully integrated."
+  }
+  
